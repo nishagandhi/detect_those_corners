@@ -1,2 +1,2 @@
-# all_about_features
+# detect_those_corners
 Image features
