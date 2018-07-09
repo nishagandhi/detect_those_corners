@@ -1,9 +1,9 @@
 import numpy as np
 import cv2
-import sys,getopt
+import sys
 import copy as cp
 import matplotlib.pyplot as plt
-
+import argparse
    
 def harris_corners(image):
 
@@ -31,7 +31,21 @@ def shi_tomasi(image):
     return image
 
 def main():
-    
+
+    #if len(sys.argv) != 3:
+    #    print "Error: Please check this https://github.com/nishagandhi/detect_those_corners for sample usage of this script."
+
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--input',default=2,required=True,type=int,help='Specify input type : 0-Image, 1-Video, 2-Webcam, 3-Image Folder')
+    parser.add_argument('--img_path',default='images/test.jpg',type=str,help='Specify image path (OPTIONAL)')
+    parser.add_argument('--vid_path',default='videos/test.avi',type=str,help='Specify video path (OPTIONAL)')
+    parser.add_argument('--folder_path',default='images/',type=str,help='Specify folder path (OPTIONAL)')
+
+    args = parser.parse_args()
+
+    if args.input==0:
+        print(0)
+    '''
     cap = cv2.VideoCapture(0)
     
     while(True):
@@ -52,6 +66,6 @@ def main():
 
     cap.release()
     cv2.destroyAllWindows()
-
+    '''
 if __name__ == "__main__":
     main()
