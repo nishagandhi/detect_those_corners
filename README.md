@@ -1,8 +1,8 @@
 # detect_those_corners
 
 This repo is the implementation of this blog post : 
-<br/>
-The code implements Harris Corner Detector and Shi-Tomasi Corner Detector. Detecting important corners in an image or a video is important for applications such as panaroma creation (stitching of images together), object recognition, motion tracking etc. Read the above blog to know more about how corner detection works in practise.
+<br/><br/>
+The code implements Harris Corner Detector and Shi-Tomasi Corner Detector. Detecting important corners in an image or a video is the most important and basic task in Computer Vision. It is important for applications such as panaroma creation (stitching of images together), object recognition, motion tracking etc. Read the above blog to know more about how corner detection works in practise.
 
 <br/>
 
