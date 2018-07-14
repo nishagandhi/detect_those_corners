@@ -3,7 +3,7 @@
 This repo is the implementation of this blog post : 
 The code implements Harris Corner Detector and Shi-Tomasi Corner Detector.
 
-![Alt Text](https://github.com/nishagandhi/detect_those_corners/raw/master/output/sample_webcam_output.gif)
+![Alt Text](https://github.com/nishagandhi/detect_those_corners/raw/master/output/sample_webcam_output.gif | width = 100)
 
 ## Requirements : 
 OpenCV 3.4.1 <br/>
