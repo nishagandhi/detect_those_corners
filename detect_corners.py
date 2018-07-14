@@ -6,34 +6,34 @@ import matplotlib.pyplot as plt
 import argparse
 import os
 import random
+from corners import harris_corners,shi_tomasi
 
-def harris_corners(image):
+#Checks if the path exists
+def check_path(path):
 
-    gray_img = cv2.cvtColor(image,cv2.COLOR_BGR2GRAY)
-    gray_img = np.float32(gray_img)
+    if not os.path.exists(path):
+        print('ERROR! The given path does not exist.')
+        sys.exit(0)
+
+#Finds corners : harris and shitomasi
+def find_corners(img):
+
+    img_dup = cp.copy(img)
+    img_dup1 = cp.copy(img)
+
+    harris = harris_corners(img)
+    shitomasi,silhouette = shi_tomasi(img_dup)
     
-    corners_img = cv2.cornerHarris(gray_img,3,3,0.04)
-
-    image[corners_img>0.001*corners_img.max()] = [255,255,0]
-
-    return image
-
-def shi_tomasi(image):
-
-    gray_img = cv2.cvtColor(image,cv2.COLOR_BGR2GRAY)
+    #Display different corner detection methods side by side
     
-    corners_img = cv2.goodFeaturesToTrack(gray_img,2000,0.01,10)
-    corners_img = np.int0(corners_img)
-    
-    blank_img = np.zeros((image.shape[0],image.shape[1],3),np.uint8)
+    out1 = np.concatenate((harris,shitomasi),axis=1)
+    out2 = np.concatenate((img_dup1,silhouette),axis=1)
 
-    for corners in corners_img:
-
-        x,y = corners.ravel()
-        cv2.circle(image,(x,y),3,[255,255,0],-1)
-        cv2.circle(blank_img,(x,y),2,[255,255,0],-1)
-
-    return image,blank_img
+    out3 = np.concatenate((out1,out2),axis=0)    
+    #cv2.imshow('Left: Harris, Right: Shi-Tomasi',out1)
+    #cv2.imshow('Important points',out2)
+    cv2.imshow('Corners',out3)
+    return harris,shitomasi,silhouette,out3
 
 def main():
 
@@ -42,81 +42,93 @@ def main():
         sys.exit(0)
 
     parser = argparse.ArgumentParser()
-    parser.add_argument('--input_type',default=2,required=True,type=int,help='Specify input type : 0-Image, 1-Video, 2-Webcam, 3-Image Folder')
-    parser.add_argument('--img_path',default='images/test.jpg',type=str,help='Specify image path (OPTIONAL)')
-    parser.add_argument('--vid_path',default='videos/test.avi',type=str,help='Specify video path (OPTIONAL)')
+    parser.add_argument('--input_type',default=2,required=True,type=int,help='Specify input type : 0-Image, 1-Webcam, 2-Image Folder')
+    parser.add_argument('--img_path',default='./images/eagle.jpeg',type=str,help='Specify image path (OPTIONAL)')
+    parser.add_argument('--folder_path',default='./images/',type=str,help='Specify folder path (OPTIONAL)')
     parser.add_argument('--camera',default=0,type=int,help='Specify the camera you want to use (OPTIONAL)')
-    parser.add_argument('--folder_path',default='images/',type=str,help='Specify folder path (OPTIONAL)')
-    parser.add_argument('--output_path',default='output/',type=str,help='Specify output path (OPTIONAL)')
+    parser.add_argument('--save',default=False,type=bool,help='Specify True for saving the output (OPTIONAL)')
+    parser.add_argument('--output_path',default='output/',type=str,help='Specify output path if you want to save(OPTIONAL)')
     args = parser.parse_args()
 
+    #Image
     if args.input_type==0:
         
-        if not os.path.exists(args.img_path):
-            print('ERROR: Please give correct image path!')
-            sys.exit(0)
+        check_path(args.img_path)   
+        img = cv2.imread(args.img_path)
+        
+        harris,shitomasi,silhoutte,out3 = find_corners(img)
 
-        image = cv2.imread(args.img_path)
-        image_dup = cp.copy(image)
-        image_dup1 = cp.copy(image)
+        #Save the output
+        if args.save==True:
 
-        harris_img = harris_corners(image)
-        shitomasi_img,blank_img = shi_tomasi(image_dup)
+            temp = str(random.randint(1,101))
 
-        h_s = np.concatenate((harris_img,shitomasi_img),axis=1)
-        concat = np.concatenate((image_dup1,blank_img),axis=1)
+            #Uncomment these to save all outputs
+            '''
+            cv2.imwrite(args.output_path+'Harris_'+temp+'.jpg',harris)
+            cv2.imwrite(args.output_path+'shitomasi_'+temp+'.jpg',shitomasi)
+            cv2.imwrite(args.output_path+'silhouette_'+temp+'.jpg',silhouette)
+            '''
+            cv2.imwrite(args.output_path+'corners'+temp+'.jpg',out3)
+            
 
-        cv2.imshow('Left: Harris, Right: Shi-Tomasi',h_s)
-        cv2.imshow('Important points',concat)
-        cv2.imwrite(args.output_path+'HarrisShiTomasi_'+str(random.randint(1,101))+'.jpg',h_s)
-        cv2.imwrite(args.output_path+'Silhoutte_'+str(random.randint(1,101))+'.jpg',concat)
         cv2.waitKey(0)
 
+
+    #Webcam
     elif args.input_type==1:
-
-        if not os.path.exists(args.vid_path):
-            print('ERROR: Please give correct video path!')
-            sys.exit(0)
-
-        cap = cv2.VideoCapture(args.vid_path)
-
-        while(cap.isOpened()):
-
-            ret,frame = cap.read()
-            frame_dup = cp.copy(image)
-
-            harris_frame = harris_corners(frame)
-            shitomasi_frame,blank_img = shi_tomasi(frame_dup)
-
-            cv2.imshow('After detecting Harris corners',harris_frame)
-            cv2.imshow('After detecting Shi-Tomasi corners',shitomasi_frame)
-        cap.release()
-    else:
     
         cap = cv2.VideoCapture(args.camera)
-        frame_width = int(cap.get(3))
-        frame_height = int(cap.get(4)) 
-        out = cv2.VideoWriter(args.output_path+'out_'+str(random.randint(1,101))+'.avi',cv2.VideoWriter_fourcc('M','J','P','G'), 30, (2160,800))
+        width = int(cap.get(3))
+        height = int(cap.get(4)) 
+        temp = str(random.randint(1,101))
+        writer1 = cv2.VideoWriter(args.output_path+'out_'+temp+'.avi',cv2.VideoWriter_fourcc('M','J','P','G'),30,(width,height))
+        writer2 = cv2.VideoWriter(args.output_path+'out_'+temp+'.avi',cv2.VideoWriter_fourcc('M','J','P','G'),30,(width,height))
+       
         while(True):
 
-            ret,img = cap.read()
-            cv2.imshow('Original Image',img)
-    
-            img1 = cp.copy(img)
-            img2 = cp.copy(img)
+            ret,frame = cap.read()
+            frame1 = cp.copy(frame)
+            harris,shitomasi,silhouette,out3= find_corners(frame)
 
-            harris = harris_corners(img)
-            shitomasi,blank_img = shi_tomasi(img1)
-       
-            h_s = np.concatenate((harris,shitomasi),axis=1)
-            concat = np.concatenate((img2,blank_img),axis=1)
-            cv2.imshow('Left: Harris, Right: Shi-Tomasi',h_s)
-            cv2.imshow('Important points',concat)
-            out.write(concat)
+            if args.save==True:
+
+                #To write out3, please provide proper height and width. You can add more writers.
+                writer1.write(frame1)
+                writer2.write(silhouette)
+
             if cv2.waitKey(1) & 0xff == ord('q'):
                 break
 
         cap.release()
+
+    #Folder of images
+    else:
+
+        check_path(args.folder_path)
+
+        for img in os.listdir(args.folder_path):
+
+            img = cv2.imread(args.folder_path+img)
+            harris,shitomasi,silhouette,out3 = find_corners(img)
+
+            temp = str(random.randint(1,101))
+
+            if args.save==True:
+
+                #Uncomment these to save all outputs
+                '''
+                cv2.imwrite(args.output_path+'Harris_'+temp+'.jpg',harris)
+                cv2.imwrite(args.output_path+'shitomasi_'+temp+'.jpg',shitomasi)
+                cv2.imwrite(args.output_path+'silhouette_'+temp+'.jpg',silhouette)
+                '''
+                cv2.imwrite(args.output_path+'corners'+temp+'.jpg',out3)
+                
+                
+            cv2.waitKey(0)
+
+
+
     cv2.destroyAllWindows()
     
 if __name__ == "__main__":
