@@ -5,7 +5,7 @@ The code implements Harris Corner Detector and Shi-Tomasi Corner Detector.
 
 <br/>
 
-<img src="https://github.com/nishagandhi/detect_those_corners/raw/master/output/sample_webcam_output.gif" width="500" height="200" />
+<img src="https://github.com/nishagandhi/detect_those_corners/raw/master/output/sample_output.gif" width="500" height="200" />
 
 <br/><br/>
 
