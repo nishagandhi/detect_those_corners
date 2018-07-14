@@ -1,7 +1,8 @@
 # detect_those_corners
 
 This repo is the implementation of this blog post : 
-The code implements Harris Corner Detector and Shi-Tomasi Corner Detector.
+<br/>
+The code implements Harris Corner Detector and Shi-Tomasi Corner Detector. Detecting important corners in an image or a video is important for applications such as panaroma creation (stitching of images together), object recognition, motion tracking etc. Read the above blog to know more about how corner detection works in practise.
 
 <br/>
 
@@ -18,9 +19,8 @@ Python 3.6.5
 
 ### For image/webcam/video (respectively)
 ```
-python detect_corners.py --input_type=0
-python detect_corners.py --input_type=1
-python detect_corners.py --input_type=2
+python detect_corners.py --input_type=0 --img_path=path/to/image.jpg
+python detect_corners.py --input_type=1 --camera=0
+python detect_corners.py --input_type=2 --folder_path=path/to/folder
 ```
-You can also give the image path, folder path using --img_path and --folder_path respectively.<br/> You can change the camera number using --camera. <br/> You can save the output by setting --save = True.
-
+You can save the output by setting --save=True.
